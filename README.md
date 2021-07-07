@@ -18,11 +18,7 @@ try {
 } catch (\eorivalidator\serviceNotAvailableException $e) {
   
   die('The required web service was unavailable');
-  
-} catch (\eorivalidator\serviceNotAvailableException $e) {
-  
-  die('Error: '.$e->getMessage());
-  
+    
 } catch (\eorivalidator\malformedEoriNumber $e) {
   
   die('Your EORI number was not formed correctly: '.$e->getMessage());
