@@ -8,6 +8,8 @@ This uses the following resources to validate GB and EU origin EORI numbers.
 ## Usage
 
 ```
+<?PHP
+
 try {
   
   echo \eorivalidator\eori::validate('GB981509987000') ? 'Valid' : 'NOT Valid';
@@ -25,4 +27,6 @@ try {
   die('Your EORI number was not formed correctly: '.$e->getMessage());
   
 }
+
+?>
 ```
