@@ -34,18 +34,23 @@ class eori {
   
   static function EU(string $eori) {
     
-    $client = new SoapClient(self::eu_wsdl);
-    
     $params = array(
       "eori" => $eori
     );
-
-    $response = $client->__soapCall("validateEORI", array($params));
+    
+    try {
+      
+      $client = new \SoapClient(self::eu_wsdl);
+      $response = $client->__soapCall("validateEORI", array($params));
+      
+    } catch (\SoapFault $e) {
+      
+      throw new serviceNotAvailableException('The EU web service was unavailable: '.$e->getMessage());
+      
+    }
     
     return $response->return->result->statusDescr == 'Valid' ? true : false;
-    
-    print_r($response);exit;
-    
+        
   }
   
   static function GB(string $eori) {
@@ -62,7 +67,7 @@ class eori {
     curl_close ($ch);
         
     if($response_code != 200) {
-      throw new serviceNotAvailableException('The web service was unavailable');
+      throw new serviceNotAvailableException('The GB web service was unavailable: Response code '.$response_code);
     }
     
     if(stripos($response_body, 'Invalid EORI number')) return false;
