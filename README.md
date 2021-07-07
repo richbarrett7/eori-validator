@@ -7,7 +7,8 @@ This uses the following resources to validate GB and EU origin EORI numbers.
 
 ## Usage
 
-```
+```php
+
 <?PHP
 
 try {
