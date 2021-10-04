@@ -16,10 +16,6 @@ class eori
             throw new malformedEoriNumber('The EORI should contain letters and numbers only, no spaces');
         }
 
-        if (!is_numeric(substr($sanitised, 2))) {
-            throw new malformedEoriNumber('The EORI should start with two letters followed by numbers');
-        }
-
         if (!ctype_alpha(substr($sanitised, 0, 2))) {
             throw new malformedEoriNumber('The EORI should start with two letters');
         }
@@ -50,6 +46,10 @@ class eori
 
     static function GB(string $eori)
     {
+        if (!is_numeric(substr($eori, 2))) {
+            throw new malformedEoriNumber('The EORI should start with two letters followed by numbers');
+        }
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, self::gov_uk_url);
         curl_setopt($ch, CURLOPT_POST, 1);
