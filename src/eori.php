@@ -5,7 +5,7 @@ namespace eorivalidator;
 class eori
 {
     const eu_wsdl = 'https://ec.europa.eu/taxation_customs/dds2/eos/validation/services/validation?wsdl';
-    const gov_uk_url = 'https://www.tax.service.gov.uk/check-eori-number/result';
+    const gov_uk_url = 'https://api.service.hmrc.gov.uk/customs/eori/lookup/check-multiple-eori';
 
     static function validate(string $eori)
     {
@@ -50,19 +50,30 @@ class eori
             throw new malformedEoriNumber('The EORI should start with two letters followed by numbers');
         }
 
+        $payload = array();
+        $payload['eoris']= array($eori);
+
+        
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, self::gov_uk_url);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query(array('eori' => $eori)));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 5);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
+        // JSON headers
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json',
+            'Accept: application/vnd.hmrc.1.0+json',
+        ));
+
         $response_body = curl_exec($ch);
         $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
+    
         if ($response_code !== 200) {
             if ($response_code === 400) {
                 throw new malformedEoriNumber('Please check your EORI number');
@@ -71,9 +82,8 @@ class eori
             }
         }
 
-        if (stripos($response_body, 'Invalid EORI number')) return false;
-
-        return true;
+        $response_body = json_decode($response_body, true);
+        return $response_body[0]['valid'] == true ? true : false;
     }
 }
 
